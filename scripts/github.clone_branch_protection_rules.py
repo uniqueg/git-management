@@ -20,6 +20,7 @@ import sys
 
 from github import Github
 from github.GithubException import (GithubException, UnknownObjectException)
+from github.GithubObject import NotSet
 
 logger = logging.getLogger()
 
@@ -80,6 +81,12 @@ def parse_args():
             "omitted, the user's repositories are searched"
         ),
         metavar='STR',
+    )
+    parser.add_argument(
+        '--no-status-checks',
+        action='store_true',
+        default=False,
+        help="do not clone status checks settings",
     )
     parser.add_argument(
         '--verbose', "-v",
@@ -216,10 +223,17 @@ def main():
             dismissal_users = [u.login for u in dismissal_users]
         else:
             dismissal_users = []
+        # Get status check settings
+        if args.no_status_checks:
+            strict = NotSet
+            contexts = NotSet
+        else:
+            strict = conf.required_status_checks.strict
+            contexts = conf.required_status_checks.contexts
         # Update destination branch settings
         branch_dest.edit_protection(
-            strict=conf.required_status_checks.strict,
-            contexts=conf.required_status_checks.contexts,
+            strict=strict,
+            contexts=contexts,
             enforce_admins=conf.enforce_admins,
             dismissal_users=dismissal_users,
             dismissal_teams=dismissal_teams,
@@ -255,5 +269,4 @@ if __name__ == '__main__':
     try:
         main()
     except Exception:
-        logger.exception("oops")
         sys.exit(1)

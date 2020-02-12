@@ -14,7 +14,6 @@ import os
 import sys
 
 from github import Github
-from github.GithubException import (GithubException, UnknownObjectException)
 from github.GithubObject import NotSet
 
 logger = logging.getLogger()
