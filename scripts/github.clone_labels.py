@@ -67,6 +67,12 @@ def parse_args():
         help="update existing labels",
     )
     parser.add_argument(
+        '--delete-source-labels',
+        action='store_true',
+        default=False,
+        help="delete all existing labels",
+    )
+    parser.add_argument(
         '--verbose', "-v",
         action='store_true',
         default=False,
@@ -156,6 +162,14 @@ def main():
             f"'{org_dest.login}'."
         )
         raise
+
+    # Delete labels in destination, if requested
+    if args.delete_source_labels:
+        i = 1
+        for label in repo_dest.get_labels():
+            logger.info(f"Deleting source label {i}: '{label.name}'")
+            label.delete()
+            i += 1
 
     # Loop over labels in source
     i = 1
